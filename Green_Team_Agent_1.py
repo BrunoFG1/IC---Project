@@ -35,9 +35,33 @@ def modelNN():
 glob_model = modelNN()
 
 def set_model_weights(chromo):
+    """
+    For each weight layer in glob_model, its shape and size are discovered.
+    Then, a slice with that size is cut from the chromosome, it is reshaped 
+    to have that shape, and its used to replace the weights of that layer 
+    in the model.
+    
+    """
     global glob_model
+    new_weights = []
+    cur_idx = 0
+    # each i is correspondent to the weights of each layer in the neural network
+    for i in glob_model.get_weights():
+        size = i.size
+        shape = i.shape
+        # we here get a slice from the chromossome and we give it the layer shape 
+        w_slice = chromo[cur_idx : cur_idx + size]
+        new_weights.append(w_slice.reshape(shape))
+        cur_idx += size
+    # in the end we have a list of arrays of each chromossome slice reshaped to match the model´s layer shape 
+    glob_model.set_weights(new_weights)
+    
 
 def get_model_chromo_shape():
+    """
+    Here, we will get the size (length) of the chromossome's vector.
+    
+    """
     global glob_model
     tot_weights = 0
     # each i is correspondent to the weights of each layer in the neural network
@@ -46,10 +70,29 @@ def get_model_chromo_shape():
     return tot_weights        
 
 def policy(obs, agent_id):
+    """
+    The policy function will use the 'glob_model' which is the modelNN() function
+    and the dictionary 'obs' to decide the next action
+    
+    """
     global glob_model
 
-    obs_array = np.array(obs) / 250.0  # data normalization
-    return random.randint(0, 6)
+    vis = np.array(obs["grid"]) / 250.0  # data normalization
+    vis = vis.reshape(1, OBS_SHAPE[0], OBS_SHAPE[1], 1)
+
+    hold = np.array(obs["holding"])
+    hold = hold.reshape(1, 1)
+
+    stun = np.array(obs["stun"]) / STUN_TIME
+    stun = stun.reshape(1, 1)
+
+    #  Action predict
+    act_pref = glob_model.predict([vis, hold, stun], verbose=0)
+
+    # Action Choice
+    cho_act = np.argmax(act_pref[0])
+
+    return int(cho_act)
 
 # def load_weights(chromo_weights, agent_idx):
 
