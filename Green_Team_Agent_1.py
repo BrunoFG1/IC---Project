@@ -3,7 +3,7 @@ import numpy as np
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, Flatten, Dense, Input, Concatenate
 
-# Rui -> Estratégia RN + CE (Redes Neuronais + Computação Evolucionária)
+# Rui -> Estratégia RN + CE (Redes Neuronais + Computação Evolucionária) AGENTE 1
 
 VISION = 3
 OBS_SHAPE = (2 * VISION + 1, 2 * VISION + 1, 1)
@@ -94,7 +94,30 @@ def policy(obs, agent_id):
 
     return int(cho_act)
 
-# def load_weights(chromo_weights, agent_idx):
+def load_weights(chromo_weights, agent_idx):
+    """
+    Load the weights from the .npy file and 
+    that file is used in this agent
+    
+    """
+    try:
+        chromo = np.load(chromo_weights)
+        agent_len = get_model_chromo_shape()
+        # agent 1 will take the first half from the weights list
+        if agent_idx == 1:
+            c1 = chromo[0 : agent_len]
+            set_model_weights(c1)
+        # agent 2 will take the second half from the weights list
+        elif agent_idx == 2:
+            c2 = chromo[agent_len :]
+            set_model_weights(c2)
+        print(f"Agent {agent_idx} loaded the {chromo_weights} weights")
+    except FileNotFoundError:
+        print(f"File {chromo_weights} not found, currently using random weights")
+    except Exception as e:
+        print(f"Failed to load the weights: {e}, using random weights")
+
+load_weights("best_chrome_team.npy", 1)
 
 
 
