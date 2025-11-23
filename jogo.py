@@ -277,7 +277,9 @@ class CaptureTheFlagParallel(ParallelEnv):
                 continue
             if p in occupied:
                 continue
-            occupied.remove(self.pos[a])
+            #occupied.remove(self.pos[a])
+            if self.pos[a] in occupied:
+                occupied.remove(self.pos[a])
             occupied.add(p)
             new_pos[a] = p
         self.pos = new_pos
