@@ -97,27 +97,30 @@ def main():
     print(f"Total chromossome size: {team_chromo_len}")
     
     pop = create_pop(team_chromo_len)
-    best_fit = -np.inf # initialize with the lowest possible value
+    best_fit = -np.inf 
     best_team = None
     
-    for gen in trange(NUM_GENERATIONS, desc="Generations"): # progress bar for generations
+    for gen in trange(NUM_GENERATIONS, desc="Generations"): 
         fits = []
-        # show inner progress for evaluating the population
+        
         for tc in tqdm(pop, desc=f"Gen {gen+1} eval", leave=False):
             fit = calc_fitness(tc, ag1_len, ag2_len)
             fits.append(fit)
+            
         mean_fit = np.mean(fits)
         best_fit_gen = np.max(fits)
         
+        # update the best
         if best_fit_gen > best_fit:
             best_fit = best_fit_gen
-            best_team = pop[np.argmax(fits)].copy() # return the index of the most fit chromossome in the population
+            best_team = pop[np.argmax(fits)].copy()
         
         print(f"Generation {gen+1}/{NUM_GENERATIONS}")
         print(f"The best score: {best_fit_gen:.2f}")
         print(f"The mean score: {mean_fit:.2f}")
 
-        sort_idxs = np.argsort(fits)[::-1] # indexes from highest to lowest fitness score
+        # Elitism
+        sort_idxs = np.argsort(fits)[::-1]
         new_pop = []
         for i in sort_idxs[:ELITISM_COUNT]:
             new_pop.append(pop[i])
@@ -125,7 +128,6 @@ def main():
         parents = selection(pop, fits)
 
         while len(new_pop) < POPULATION_SIZE:
-            # 2 random parents are chosen
             id1 = np.random.randint(0, len(parents))
             p1 = parents[id1]
 
@@ -135,22 +137,21 @@ def main():
             while id1 == id2:
                 id2 = np.random.randint(0, len(parents))
             p2 = parents[id2]
-            # 2 children are created
+            
             c1, c2 = crossover(p1, p2)
-            # added to the new population the mutated chromossomes
+            
             new_pop.append(mutate(c1))
             if len(new_pop) < POPULATION_SIZE:
                 new_pop.append(mutate(c2))  
-    
-    pop = new_pop
-    # train over
+        
+        pop = new_pop
+
     print("GA train is done!\n")
     print(f"Best team by fitness: {best_fit}")
-    # save the file for the best chromossome
-    file = "best_chrome_team.npy"
+    
+    file = "best_chrome_green_team.npy"
     np.save(file, best_team)
     print(f"Best team saved in npy file: {file}")
 
 if __name__ == "__main__":
     main()
-

@@ -87,7 +87,7 @@ def policy(obs, agent_id):
     stun = stun.reshape(1, 1)
 
     #  Action predict
-    act_pref = glob_model.predict([vis, hold, stun], verbose=0)
+    act_pref = glob_model([vis, hold, stun], training=False).numpy()
 
     # Action Choice
     cho_act = np.argmax(act_pref[0])
