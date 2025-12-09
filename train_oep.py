@@ -11,7 +11,7 @@ ITERATIONS = 50
 C1 = 1.5    # acceleration constant cognitive (personal best)
 C2 = 1.5    # acceleration constant social (group best)         # NOTES: C1 + C2 <= 4, so the velocities and positions from the particles dont diverge, which means if the sum is bigger than 4 the particles will be far from the swarm best solution and their solution will be even worse in the further iteractions, making that they can't find a solution better than their personal best.
 W = 0.9     # inertia -> high values for the inertia makes that a bigger zone in the space is searched by the particles, small values make the search zone tiny
-W_MIN = 0.4 # min value for the inertia
+W_MIN = 0.51 # min value for the inertia
 V_MAX = 1.0 # max velocity -> to make the particles avoid move too fast in the search space, doesn't limit the boundaries of the search zone, but controls the step size for stability.
 
 N_EVAL = 3        # Quantos jogos rodar para testar cada partícula (média)
