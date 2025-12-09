@@ -2,14 +2,14 @@ import numpy as np
 import heapq
 
 
-class MyAgentState:
+class AgentState:
     def __init__(self):
         self.global_pos = (0, 0)
         self.base_global_pos = None
         self.visited = set()
         self.last_action = 0
         
-my_state = MyAgentState()
+my_state = AgentState()
 
 # [Custo, Heurística, Repulsão]
 PSO_WEIGHTS = [2.35977368, 1.84191254, 0.01] 
@@ -58,14 +58,14 @@ def a_star_pso(grid, start, end, teammate_pos, weights):
         for neighbor in neighbors:
             ni, nj = neighbor
             
-            # Limites e Paredes
+            # limits and walls
             if ni < 0 or ni >= rows or nj < 0 or nj >= cols: continue
             if grid[ni, nj] == 50: continue
 
 
             move_cost = 1
             
-            # Repulsão do Amigo
+            # teammate repulsion
             if teammate_pos and manhattan_dist(neighbor, teammate_pos) <= 1:
                 move_cost += w_team 
 
@@ -108,10 +108,10 @@ def policy(obs, agent_id=0):
         by, bx = bases[0]
         rel_y, rel_x = by - vision, bx - vision
         
-        # Posição absoluta desta base que estamos a ver
+        # absolute position from the base that we are seeing
         observed_base_global = (my_state.global_pos[0] + rel_y, my_state.global_pos[1] + rel_x)
         
-        # Só atualizamos se for a primeira vez OU se estiver perto (<15) da nossa base original
+        # we only refresh the variable if it is the first time (game's beginning) or if the agent is close (< 15) from his base
         if my_state.base_global_pos is None:
             my_state.base_global_pos = observed_base_global
         else:
@@ -163,14 +163,22 @@ def policy(obs, agent_id=0):
             elif dx == -1: action = 3
             elif dx == 1: action = 4
 
+    # to fix when agents become stuck
+    dy, dx = move_map[action]
+    next_cell = (vision + dy, vision + dx)
+    if teammate_pos and next_cell == teammate_pos:
+        action = 0
+
     # exploration
     if action == 0:
         possible = [1, 2, 3, 4]
         np.random.shuffle(possible)
         for act in possible:
             dy, dx = move_map[act]
-            if grid[vision+dy, vision+dx] == 50: continue
-            
+            if grid[vision+dy, vision+dx] == 50:
+                continue
+            if teammate_pos and next_cell == teammate_pos:
+                continue
             future_global = (my_state.global_pos[0] + dy, my_state.global_pos[1] + dx)
             if future_global not in my_state.visited:
                 action = act
@@ -179,7 +187,9 @@ def policy(obs, agent_id=0):
         if action == 0:
             for act in possible:
                 dy, dx = move_map[act]
-                if grid[vision+dy, vision+dx] != 50: 
+                if grid[vision+dy, vision+dx] != 50:
+                    if teammate_pos and next_cell == teammate_pos:
+                        continue
                     action = act
                     break
 
