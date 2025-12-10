@@ -175,9 +175,10 @@ def policy(obs, agent_id=0):
         np.random.shuffle(possible)
         for act in possible:
             dy, dx = move_map[act]
+            test_cell = (vision + dy, vision + dx)
             if grid[vision+dy, vision+dx] == 50:
                 continue
-            if teammate_pos and next_cell == teammate_pos:
+            if teammate_pos and test_cell == teammate_pos:
                 continue
             future_global = (my_state.global_pos[0] + dy, my_state.global_pos[1] + dx)
             if future_global not in my_state.visited:
@@ -187,8 +188,9 @@ def policy(obs, agent_id=0):
         if action == 0:
             for act in possible:
                 dy, dx = move_map[act]
+                test_cell = (vision + dy, vision + dx)
                 if grid[vision+dy, vision+dx] != 50:
-                    if teammate_pos and next_cell == teammate_pos:
+                    if teammate_pos and test_cell == teammate_pos:
                         continue
                     action = act
                     break
