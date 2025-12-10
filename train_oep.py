@@ -61,7 +61,7 @@ def main():
 
     for i in trange(ITERATIONS, desc="Iterations PSO"):
         # Decrement the inertia so we can optimize the performance
-        cur_W = W - ((W - W_MIN) * (i/float(ITERATIONS))) # the equation result will be always higher than 0.4
+        cur_W = W - ((W - W_MIN) * (i/float(ITERATIONS))) # the equation result will be always higher than 0.5
         for p in tqdm(swarm, desc="Eval particles", leave=False):
             
             w_r1 = p.position
